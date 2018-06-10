@@ -1,0 +1,40 @@
+body { font: 1em Fontin, serif }
+nav { font-size: .7em }
+
+@page { size: A4; margin: 1cm }
+@media print {
+    nav { display: none }
+}
+
+div#header {
+  text-align: center;
+}
+
+div#body {
+  font-style: italic;
+}
+
+div#footer {
+  clear: both;
+  font-style: italic;
+}
+
+span.bold-label {font-weight: bold;}
+
+span#amount {
+  margin-left: 160px;
+  padding: 6px;
+	font-weight: bold;
+  background-color: silver;
+}
+
+div.label {
+  float: left;
+  width: 160px;
+  color: gray;
+}
+
+div.data {
+  float: right;
+  width: 500px;
+}

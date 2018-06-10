@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block header %}
+	<h1>{% block title %}Edit "{{ receipt['number'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="number">Receipt number</label>
+        <input name="number" id="number" value="{{ request.form['number'] or receipt['number'] }}" disabled>
+
+        <label for="concepts">Concept</label>
+        <select name="concept" id="concept" value="{{ request.form['concept'] or receipt['concept_id'] }}" required>
+            <option value="0">Select concept</option>
+            {% for concept in concepts %}
+                {% if concept.id == receipt['concept_id'] %}
+                <option value="{{ concept.id }}" selected>{{ concept.description }}</option>
+                {% else %}
+                <option value="{{ concept.id }}">{{ concept.description }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+
+        <label for="receiver">Receiver</label>
+        <select name="receiver" id="title" value="{{ request.form['person_id'] or receipt['person_id'] }}" required>
+            <option value="0">Select receiver</option>
+            {% for receiver in receivers %}
+                {% if receiver.id == receipt['receiver_id'] %}
+                <option value="{{ receiver.id }}" selected>{{ receiver.prop_alias }} - {{ receiver.name }}</option>
+                {% else %}
+                <option value="{{ receiver.id }}">{{ receiver.prop_alias }} - {{ receiver.name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+
+        <label for="amount">Amount</label>
+        <input name="amount" id="title" value="{{ request.form['amount'] or receipt['amount'] }}" required>
+
+        <label for="issue_date">Issue date</label>
+        <input name="issue_date" id="title" value="{{ request.form['issue_date'] or receipt['issue_date'] }}" required>
+
+        <label for="status">Status</label>
+        <select name="status" id="title" value="{{ request.form['status'] or receipt['status'] }}" required>
+            <option value="P" selected>Pendant</option>
+            <option value="C">Cancelled</option>
+        </select>
+
+        <input type="submit" value="Save">
+    </form>
+    <hr>
+    <form action="{{ url_for('receipt.delete', id=receipt['id']) }}" method="post">
+        <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+    </form>
+{% endblock %}

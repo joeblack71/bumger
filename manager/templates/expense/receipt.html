@@ -1,0 +1,30 @@
+<!doctype html>
+<title>Hello</title>
+<link rel=stylesheet href="{{ url_for('static', filename='receipt_pdf.css') }}" />
+
+<body>
+
+<h3>Edificio Buen Retiro # 185 - 195</h3>
+
+<div id="header">
+	<br>
+	<div><span class="bold-label">Recibo Nro:</span> {{ receipt['number'] }} <span id="amount">S/. {{ receipt['amount'] }}</span></div>
+</div>
+
+<div id="body">
+	<br><br>
+	<div class="label">Recibí de:<span>&nbsp;{{ receipt['owner'] }}</span> - <span>{{ receipt['description'] }}</span></div>
+	<br>
+	<div class="label">la cantidad de:<span>&nbsp;{{ rec_form['str_amount'] }} Nuevos Soles</span></div>
+	<br>
+	<div class="label">por concepto de:<span>&nbsp;{{ receipt['concept_desc'] }}</span></div>
+	<br>
+	<div class="label">Fecha cancelación: <span>&nbsp;dd-mm-YYYY</span></div>
+</div>
+
+<div id="footer">
+	<br><br>
+	<div class="label">Fecha cancelación: <span>&nbsp;dd-mm-YYYY</span></div>
+</div>
+
+</body>

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}New Receipt{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="number">Receipt number</label>
+        <input name="number" id="number" required>
+
+        <label for="concept">Concept</label>
+        <select name="concept" id="concept" required>
+            <option value="0" selected>Select concept</option>
+            {% for concept in concepts %}
+            <option value="{{ concept.id }}">{{ concept.description }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="receiver">Receiver</label>
+        <select name="receiver" id="receiver" required>
+            <option value="0">Select receiver</option>
+            {% for receiver in receivers %}
+            <option value="{{ receiver.id }}">{{ receiver.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="amount">Amount</label>
+        <input name="amount" id="title" value="275.0" required>
+
+        <label for="issue_date">Issue date</label> <!-- TODO set default value to today-->
+        <input name="issue_date" id="title" value="{{ request.form['issue_date'] }}" required>
+
+        <label for="status">Status</label>
+        <select name="status" id="title" disabled>
+            <option value="P" selected>Pendant</option>
+            <option value="C">Cancelled</option>
+        </select
+
+        <label for="comments">Comments</label>
+        <textarea name="comments" id="body"></textarea>
+
+        <input type="submit" value="Save">
+    </form>
+{% endblock %}

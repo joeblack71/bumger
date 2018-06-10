@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}New Expense{% endblock %}</h1>
+    <a href="{{ url_for('expense.index') }}">Expenses</a>
+{% endblock %}
+
+{% block script  %}
+<script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+<script>
+  $(function() {
+    $('#provider').on('change', function() {
+      $.getJSON($SCRIPT_ROOT + '/expense/_provider_products', {
+        person_id: $('select[name="product"]').val()
+      }, function(data) {
+            /* refresh products drop down */
+            var $el = $("#product");
+            $el.empty();
+            $.each(data.result, function(i, obj) {
+              $el.append($("<option></option>")
+              .attr("value", obj.id).text(obj.concept));
+            });
+            });
+      return false;
+    });
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="provider">Provider</label>
+        <select name="provider" id="provider" required>
+            <option value="0">Select provider</option>
+        {% for provider in providers %}
+            <option value="{{ provider.id }}">{{ provider.name }}</option>
+        {% endfor %}
+        </select>
+
+        <label for="receipt">Receipt number</label>
+        <input name="receipt" id="receipt" required>
+
+        <label for="product">Product/Service</label>
+        <select name="product" id="product" required>
+            <option value="0">Select product</option>
+        {% for product in products %}
+            <option value="{{ product.id }}">{{ product.description }}</option>
+        {% endfor %}
+        </select>
+
+        <label for="quantity">Quantity</label>
+        <input name="quantity" id="quantity" value="1" required>
+
+        <label for="amount">Amount</label>
+        <input name="amount" id="amount" required>
+
+        <label for="expense_date">Expense date</label> <!-- TODO set default value to today-->
+        <input name="expense_date" id="expense_date" value="{{ request.form['expense_date'] }}" required>
+
+        <label for="comments">Comments</label>
+        <textarea name="comments" id="comments"></textarea>
+
+        <input type="submit" value="Save">
+    </form>
+{% endblock %}

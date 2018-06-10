@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% macro nav_link(endpoint, name) %}
+    <a class="action" href="{{ url_for(endpoint) }}">{{ name }}</a>
+{% endmacro %}
+
+{% block header %}
+    <h1>{% block title %}Payments{% endblock %}</h1>
+    {{ nav_link('receipt.index', 'Receipts') }}
+    {{ nav_link('payment.create', 'New') }}
+{% endblock %}
+
+{% block content %}
+    <br /><br />
+    {% for payment in payments %}
+      <div class="{{ loop.cycle('odd', 'even') }}">
+        {{ loop.index }}
+        - <a class="action" href="{{ url_for('payment.update', id=payment.id) }}">{{ payment.number }}</a>
+        - {{ payment.receipt_date.strftime('%d/%m/%Y') }}
+        - {{ payment.concept }}
+        - {{ payment.receiver_name }}
+        - {{ payment.property }}
+        - {{ payment.amount }}
+        - {{ payment.payment_date.strftime('%d/%m/%Y') }}
+
+        <a class="action" href="{{ url_for('payment.prepare_receipt', id=payment.id) }}">Print</a>
+
+      </div>
+
+      {% if not loop.last %}
+          <hr>
+      {% endif %}
+
+    {% endfor %}
+{% endblock %}

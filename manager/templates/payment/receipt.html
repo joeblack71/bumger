@@ -1,0 +1,50 @@
+<!doctype html>
+<title>Hello</title>
+<link rel=stylesheet href="{{ url_for('static', filename='receipt_pdf.css') }}" />
+
+<body>
+
+<div id="header">
+  <h3>Edificio Buen Retiro # 185 - 195</h3>
+  <br>
+</div>
+
+<div id="body">
+	<div class="label">
+    <div><span class="bold-label">Recibo Nro:</span></div>
+    <br><br>
+    <div>Recibí de:</div>
+  	<br>
+  	<div>la cantidad de:</div>
+  	<br><br><br>
+  	<div>por concepto de:</div>
+  	<br>
+    {% if receipt['note'] %}
+    <div><br></div>
+    {% endif %}
+  	<div>Fecha cancelación:</div>
+  </div>
+  <div class="data">
+    <div>{{ receipt['number'] }} <span id="amount">S/. {{ receipt['amount'] }}</span></div>
+    <br><br>
+    <div>{{ receipt['owner'] }} - {{ receipt['property'] }}</div>
+  	<br>
+  	<div><span>{{ rec_form['str_amount'] }}</span></div>
+  	<br>
+    <div>Nuevos Soles</div>
+  	<br>
+  	<div>{{ receipt['concept'] }}</div>
+    {% if receipt['note'] %}
+    <div>{{ receipt['note'] }}</div>
+    {% endif %}
+  	<br>
+  	<div>{{ receipt['payment_date'].strftime('%d/%m/%Y') }}</div>
+  </div>
+</div>
+
+<div id="footer">
+	<br><br>
+	<div>Santiago de Surco, <span>&nbsp;{{ rec_form.today }}</span></div>
+</div>
+
+</body>
