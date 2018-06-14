@@ -5,7 +5,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from manager.db import get_db
+from payments.db import get_db
 
 bp = Blueprint('user', __name__, url_prefix='/user')
 

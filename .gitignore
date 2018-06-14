@@ -13,4 +13,6 @@ dist/
 build/
 *.egg-info/
 
-manager.sqlalchemy
+bumger.sqlalchemy
+startup*
+.env*

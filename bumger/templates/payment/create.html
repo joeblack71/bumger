@@ -56,7 +56,7 @@
         <select name="receiver" id="receiver" required>
           <option value="0">Select receiver</option>
           {% for receiver in receivers %}
-          <option value="{{ receiver.id }}">{{ receiver.name }} - {{ receiver.property}}</option>
+          <option value="{{ receiver.receiver_id }}">{{ receiver.property_alias }} - {{ receiver.receiver_name}}</option>
           {% endfor %}
         </select>
 

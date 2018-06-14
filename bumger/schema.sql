@@ -1,5 +1,5 @@
 --
--- File generated with SQLiteStudio v3.1.1 on Sat Jun 9 22:19:18 2018
+-- File generated with SQLiteStudio v3.1.1 on Thu Jun 14 16:47:14 2018
 --
 -- Text encoding used: UTF-8
 --
@@ -96,8 +96,8 @@ CREATE TABLE property (
     id                 INTEGER PRIMARY KEY AUTOINCREMENT
                                NOT NULL,
     description        TEXT    NOT NULL,
-    alias              TEXT    UNIQUE,
-    sunarp_certificate INTEGER
+    sunarp_certificate INTEGER,
+    alias              TEXT
 );
 
 
@@ -155,23 +155,25 @@ CREATE TABLE user (
 );
 
 
--- View: occupant
-DROP VIEW IF EXISTS occupant;
-CREATE VIEW occupant AS
-    SELECT p.id,
-           first_name || ' ' || last_name AS name,
-           pp.description AS property,
-           pp.alias AS prop_alias
+-- View: property_occupant
+DROP VIEW IF EXISTS property_occupant;
+CREATE VIEW property_occupant AS
+    SELECT p.id AS occupant_id,
+           first_name || ' ' || last_name AS occupant_name,
+           pp.id AS property_id,
+           pp.description AS property_description,
+           pp.alias AS property_alias
       FROM owner o
            LEFT JOIN
            person p ON o.person_id = p.id
            LEFT JOIN
            property pp ON o.property_id = pp.id
     UNION
-    SELECT p.id,
-           first_name || ' ' || last_name AS name,
-           pp.description AS property,
-           pp.alias AS prop_alias
+    SELECT p.id AS occupant_id,
+           first_name || ' ' || last_name AS occupant_name,
+           pp.id AS property_id,
+           pp.description AS property_description,
+           pp.alias AS property_alias
       FROM tenant t
            LEFT JOIN
            person p ON t.person_id = p.id

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% set active_page = "payments" %}
 
 {% macro nav_link(endpoint, name) %}
     <a class="action" href="{{ url_for(endpoint) }}">{{ name }}</a>
@@ -6,7 +7,6 @@
 
 {% block header %}
     <h1>{% block title %}Payments{% endblock %}</h1>
-    {{ nav_link('receipt.index', 'Receipts') }}
     {{ nav_link('payment.create', 'New') }}
 {% endblock %}
 
@@ -19,7 +19,7 @@
         - {{ payment.receipt_date.strftime('%d/%m/%Y') }}
         - {{ payment.concept }}
         - {{ payment.receiver_name }}
-        - {{ payment.property }}
+        - {{ payment.property_alias }}
         - {{ payment.amount }}
         - {{ payment.payment_date.strftime('%d/%m/%Y') }}
 

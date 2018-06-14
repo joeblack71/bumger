@@ -7,9 +7,9 @@
 {% block content %}
     <form method="post">
         <label for="number">Receipt number</label>
-        <input name="number" id="number" value="{{ request.form['number'] or receipt['number'] }}" disabled>
+        <input name="number" id="number" value="{{ request.form['number'] or receipt['number'] }}" required>
 
-        <label for="concepts">Concept</label>
+        <label for="concept">Concept</label>
         <select name="concept" id="concept" value="{{ request.form['concept'] or receipt['concept_id'] }}" required>
             <option value="0">Select concept</option>
             {% for concept in concepts %}
@@ -22,22 +22,22 @@
         </select>
 
         <label for="receiver">Receiver</label>
-        <select name="receiver" id="title" value="{{ request.form['person_id'] or receipt['person_id'] }}" required>
+        <select name="receiver" id="receiver" value="{{ request.form['receiver'] or receipt['receiver_id'] }}" required>
             <option value="0">Select receiver</option>
             {% for receiver in receivers %}
-                {% if receiver.id == receipt['receiver_id'] %}
-                <option value="{{ receiver.id }}" selected>{{ receiver.prop_alias }} - {{ receiver.name }}</option>
+                {% if receiver.receiver_id == receipt['receiver_id'] %}
+                <option value="{{ receiver.receiver_id }}" selected>{{ receiver.property_alias }} - {{ receiver.receiver_name }}</option>
                 {% else %}
-                <option value="{{ receiver.id }}">{{ receiver.prop_alias }} - {{ receiver.name }}</option>
+                <option value="{{ receiver.receiver_id }}">{{ receiver.property_alias }} - {{ receiver.receiver_name }}</option>
                 {% endif %}
             {% endfor %}
         </select>
 
         <label for="amount">Amount</label>
-        <input name="amount" id="title" value="{{ request.form['amount'] or receipt['amount'] }}" required>
+        <input name="amount" id="amount" value="{{ request.form['amount'] or receipt['amount'] }}" required>
 
         <label for="issue_date">Issue date</label>
-        <input name="issue_date" id="title" value="{{ request.form['issue_date'] or receipt['issue_date'] }}" required>
+        <input name="issue_date" id="issue_date" value="{{ request.form['issue_date'] or receipt['issue_date'] }}" required>
 
         <label for="status">Status</label>
         <select name="status" id="title" value="{{ request.form['status'] or receipt['status'] }}" required>

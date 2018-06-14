@@ -5,31 +5,27 @@ from werkzeug.exceptions import abort
 
 from flask_weasyprint import render_pdf, HTML
 
-#from flask_mail import Message
-
 #from flasker.auth import login_required
-from manager.db import get_db
-
-#from manager import mail
+from ..db import get_db
 
 import time
 import locale
 
 from num2words import num2words
 
-bp = Blueprint('payment', __name__, url_prefix='/payment')
+bp = Blueprint('payment', __name__, url_prefix='/payments')
 
 @bp.route('/')
 def index():
     db = get_db()
     payments = db.execute(
-            'SELECT p.id, o.prop_alias property, o.name as receiver_name,'
+            'SELECT p.id, po.property_alias, po.occupant_name as receiver_name,'
             '       c.description as concept,'
             '       r.number, r.amount, r.issue_date receipt_date, p.payment_date, p.amount, r.status'
             '  FROM payment p'
             '       LEFT JOIN receipt r ON p.receipt_id = r.id'
             '       LEFT JOIN concept c ON r.concept_id = c.id'
-            '       LEFT JOIN occupant o ON r.person_id = o.id'
+            '       LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
             ' WHERE r.status = "C"'
             ' ORDER BY p.payment_date DESC'
     ).fetchall()
@@ -50,18 +46,20 @@ def create():
 
         if not receipt_id:
             error = 'Receipt number is required.'
+        elif not amount:
+            error = 'Amount is required.'
+        elif not payment_date:
+            error = 'Payment date is required.'
 
         if error is not None:
             flash(error)
         else:
             db = get_db()
-            ##c = db.cursor()
             payment_id = db.execute(
                 'INSERT INTO payment (receipt_id, amount, payment_date)'
                 ' VALUES (?, ?, ?)',
                 (receipt_id, amount, payment_date)
             ).lastrowid
-            ##payment_id = c.lastrowid
             db.commit()
 
             db.execute(
@@ -82,8 +80,6 @@ def create():
                 db.commit()
 
             return redirect(url_for('payment.index'))
-
-
 
     db = get_db()
 
@@ -109,17 +105,20 @@ def create():
 
     if not receiver_id:
         receivers = db.execute(
-                'SELECT id, name, property'
-                ' FROM occupant o'
-                ' ORDER BY name'
+                'SELECT occupant_id as receiver_id, occupant_name as receiver_name,'
+                ' property_id, property_description, property_alias'
+                ' FROM property_occupant'
+                ' ORDER BY occupant_name'
         ).fetchall()
+
     else:
         current_app.logger.debug('receiver_id: ' + str(receiver_id))
 
         receivers = db.execute(
-                'SELECT id, name, property'
-                ' FROM occupant'
-                ' WHERE id = ?',
+                'SELECT occupant_id as receiver, occupant_name as receiver_name,'
+                ' property_id, property_description, property_alias'
+                ' FROM property_occupant'
+                ' WHERE occupant_id = ?',
                 (receiver_id,)
         ).fetchall()
 
@@ -156,9 +155,9 @@ def update(id):
     payment = get_payment(id)
 
     receivers = db.execute(
-            'SELECT id, name, prop_alias'
-            ' FROM occupant'
-            ' ORDER BY name'
+            'SELECT occupant_id as receiver_id, occupant_name receiver_name, property_alias'
+            ' FROM property_occupant'
+            ' ORDER BY occupant_name'
     ).fetchall()
 
     concepts = db.execute(
@@ -175,13 +174,14 @@ def get_payment(id, check_user=True):
     payment = get_db().execute(
             'SELECT py.id, py.amount, py.payment_date,'
                   ' c.id as concept_id, c.description as concept_desc,'
-                  ' o.id receiver_id, o.name as receiver_name, o.property,'
+                  ' po.occupant_id receiver_id, po.occupant_name as receiver_name,'
+                  ' po.property_id, po.property_alias,'
                   ' r.id as receipt_id, r.number receipt_number, r.amount receipt_amount,'
                   ' r.issue_date as receipt_date, r.status'
             '  FROM payment py'
                   ' LEFT JOIN receipt r ON py.receipt_id = r.id'
                   ' LEFT JOIN concept c ON r.concept_id = c.id'
-                  ' LEFT JOIN occupant o ON r.person_id = o.id'
+                  ' LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
             ' WHERE py.id = ?',
             (id,)
     ).fetchone()
@@ -243,14 +243,12 @@ def prepare_receipt(id):
 def get_pdf_receipt(id):
     receipt = get_db().execute(
             'SELECT r.id, number, c.description as concept,'
-                  ' p.first_name || " " || p.last_name as owner,'
-                  ' pr.description as property, pm.amount, payment_date,'
+                  ' po.occupant_name as owner,'
+                  ' po.property_description as property, pm.amount, payment_date,'
                   ' pn.text as note, r.status'
             '  FROM receipt r'
                   ' LEFT JOIN person p ON r.person_id = p.id'
-                  ' LEFT JOIN owner o ON r.person_id = o.person_id'
-                  ' LEFT JOIN tenant t ON r.person_id = t.person_id'
-                  ' LEFT JOIN property pr ON ( o.property_id = pr.id OR t.property_id = pr.id )'
+                  ' LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
                   ' LEFT JOIN concept c ON r.concept_id = c.id'
                   ' LEFT JOIN payment pm ON r.id = pm.receipt_id'
                   ' LEFT JOIN payment_note pn ON pm.id = pn.payment_id'

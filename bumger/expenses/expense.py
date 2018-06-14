@@ -8,9 +8,9 @@ from werkzeug.exceptions import abort
 #from flask_mail import Message
 
 #from flasker.auth import login_required
-from manager.db import get_db
+from payments.db import get_db
 
-#from manager import mail
+#from payments import mail
 
 from flask import current_app
 

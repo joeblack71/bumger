@@ -9,8 +9,14 @@
         <label for="number">Receipt number</label>
         <input name="number" id="number" value="{{ request.form['receipt_number'] or payment['receipt_number'] }}" disabled>
 
+        <label for="issue_date">Receipt date</label>
+        <input name="issue_date" id="title" value="{{ payment['receipt_date'] }}" disabled>
+
+        <label for="rec_amount">Receipt Amount</label>
+        <input name="rec_amount" id="rec_amount" value="{{ payment['receipt_amount'] }}" disabled>
+
         <label for="concept">Concept</label>
-        <select name="concept" id="concept" value="{{ request.form['concept'] or payment['concept_id'] }}" required>
+        <select name="concept" id="concept" value="{{ request.form['concept'] or payment['concept_id'] }}" disabled>
             <option value="0">Select concept</option>
             {% for concept in concepts %}
                 {% if concept.id == payment['concept_id'] %}
@@ -21,29 +27,23 @@
             {% endfor %}
         </select>
 
-        <label for="receiver">Receiver.debug: {{ payment['receiver_id'] }}</label>
-        <select name="receiver" id="receiver" value="{{ request.form['receiver_id'] or payment['receiver_id'] }}" required>
+        <label for="receiver">Receiver</label>
+        <select name="receiver" id="receiver" value="{{ request.form['receiver_id'] or payment['receiver_id'] }}" disabled>
             <option value="0">Select receiver</option>
             {% for receiver in receivers %}
-                {% if receiver.id == payment['receiver_id'] %}
-                <option value="{{ receiver.id }}" selected>{{ receiver.id }} {{ receiver.prop_alias }} - {{ receiver.name }}</option>
+                {% if receiver.receiver_id == payment['receiver_id'] %}
+                <option value="{{ receiver.receiver_id }}" selected>{{ receiver.property_alias }} - {{ receiver.receiver_name }}</option>
                 {% else %}
-                <option value="{{ receiver.id }}">{{ receiver.id }} {{ receiver.prop_alias }} - {{ receiver.name }}</option>
+                <option value="{{ receiver.receiver_id }}">{{ receiver.receiver_id }} {{ receiver.property_alias }} - {{ receiver.occupant_name }}</option>
                 {% endif %}
             {% endfor %}
         </select>
 
-        <label for="amount">Payment Amount</label>
-        <input name="amount" id="amount" value="{{ request.form['amount'] or payment['amount'] }}" required>
-
         <label for="payment_date">Payment date</label>
         <input name="payment_date" id="payment_date" value="{{ request.form['payment_date'] or payment['payment_date'] }}" required>
 
-        <label for="rec_amount">Receipt Amount</label>
-        <input name="rec_amount" id="rec_amount" value="{{ payment['receipt_amount'] }}" disabled>
-
-        <label for="issue_date">Receipt date</label>
-        <input name="issue_date" id="title" value="{{ payment['receipt_date'] }}" disabled>
+        <label for="amount">Payment Amount</label>
+        <input name="amount" id="amount" value="{{ request.form['amount'] or payment['amount'] }}" required>
 
         <label for="status">Status</label>
         <select name="status" id="title" value="{{ request.form['status'] or payment['status'] }}" required>

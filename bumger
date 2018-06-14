@@ -1,9 +1,0 @@
-export FLASK_APP=manager 
-export FLASK_ENV=development
-export BUMGER_DATABASE=dev_manager.sqlite
-
-echo "+---------------------------------------+"
-echo " Selected database: \"$BUMGER_DATABASE\""
-echo "+---------------------------------------+"
-
-flask run
