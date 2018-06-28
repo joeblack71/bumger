@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}New Expense{% endblock %}</h1>
+    <h1>{% block title %}Add Expense{% endblock %}</h1>
     <a href="{{ url_for('expense.index') }}">Expenses</a>
 {% endblock %}
 
@@ -15,17 +15,17 @@
 <script>
   $(function() {
     $('#provider').on('change', function() {
-      $.getJSON($SCRIPT_ROOT + '/expense/_provider_products', {
-        person_id: $('select[name="product"]').val()
+      $.getJSON($SCRIPT_ROOT + '/expense/_provider_receipts', {
+        person_id: $('select[name="provider"]').val()
       }, function(data) {
-            /* refresh products drop down */
-            var $el = $("#product");
+            /* refresh receipts drop down */
+            var $el = $("#receipt");
             $el.empty();
             $.each(data.result, function(i, obj) {
               $el.append($("<option></option>")
               .attr("value", obj.id).text(obj.concept));
             });
-            });
+      });
       return false;
     });
   });
@@ -34,36 +34,33 @@
 
 {% block content %}
     <form method="post">
+        <label for="bill">Bill</label>
+        <input name="bill_number" id="bill_number" value="" required>
+
         <label for="provider">Provider</label>
         <select name="provider" id="provider" required>
-            <option value="0">Select provider</option>
-        {% for provider in providers %}
-            <option value="{{ provider.id }}">{{ provider.name }}</option>
-        {% endfor %}
+          <option value="0">Select provider</option>
+          {% for provider in providers %}
+          <option value="{{ provider.id }}">{{ provider.name}}</option>
+          {% endfor %}
         </select>
 
-        <label for="receipt">Receipt number</label>
-        <input name="receipt" id="receipt" required>
-
-        <label for="product">Product/Service</label>
-        <select name="product" id="product" required>
-            <option value="0">Select product</option>
-        {% for product in products %}
-            <option value="{{ product.id }}">{{ product.description }}</option>
-        {% endfor %}
+        <label for="concept">Service/Product</label>
+        <select name="concept" id="concept" required>
+          <option value="0">Select concept</option>
+          {% for concept in concepts %}
+          <option value="{{ concept.id }}">{{ concept.description}}</option>
+          {% endfor %}
         </select>
-
-        <label for="quantity">Quantity</label>
-        <input name="quantity" id="quantity" value="1" required>
 
         <label for="amount">Amount</label>
-        <input name="amount" id="amount" required>
+        <input name="amount" id="amount" value="0.0" required>
 
         <label for="expense_date">Expense date</label> <!-- TODO set default value to today-->
-        <input name="expense_date" id="expense_date" value="{{ request.form['expense_date'] }}" required>
+        <input name="expense_date" id="expense_date" required>
 
-        <label for="comments">Comments</label>
-        <textarea name="comments" id="comments"></textarea>
+        <label for="expense_note">Comments</label>
+        <textarea name="expense_note" id="expense_note"></textarea>
 
         <input type="submit" value="Save">
     </form>

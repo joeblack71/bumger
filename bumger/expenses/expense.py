@@ -8,21 +8,20 @@ from werkzeug.exceptions import abort
 #from flask_mail import Message
 
 #from flasker.auth import login_required
-from payments.db import get_db
-
-#from payments import mail
+from ..db import get_db
 
 from flask import current_app
 
-bp = Blueprint('expense', __name__, url_prefix='/expense')
+bp = Blueprint('expense', __name__, url_prefix='/expenses')
 
 @bp.route('/')
 def index():
     db = get_db()
     expenses = db.execute(
-        'SELECT expense_date, receipt_number, amount, p.name as provider, pr.description as product'
+        'SELECT e.id, e.expense_date, e.bill_number, e.amount,'
+        '       p.first_name as provider_name, pr.description as concept'
         ' FROM expense e'
-        '      JOIN provider p on e.provider_id = p.id'
+        '      JOIN person p on e.provider_id = p.id'
         '      JOIN product pr on e.product_id = pr.id'
         ' ORDER BY expense_date DESC'
     ).fetchall()
@@ -33,9 +32,10 @@ def index():
 ##@login_required
 def create():
     if request.method == 'POST':
+        bill_number = request.form['bill_number']
         provider_id = request.form['provider']
-        product_id = request.form['product']
-        quantity = request.form['quantity']
+        product_id = request.form['concept']
+        ##quantity = request.form['quantity']
         amount = request.form['amount']
         expense_date = request.form['expense_date']
 
@@ -44,7 +44,7 @@ def create():
         if not provider_id:
             error = 'Provider is required.'
 
-        if not receipt:
+        if not bill_number:
             error = 'Receipt number is required.'
 
         if not product_id:
@@ -61,9 +61,9 @@ def create():
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO expense (provider_id, receipt_number, product_id, quantity, amount, expense_date)'
+                'INSERT INTO expense (provider_id, bill_number, product_id, amount, expense_date)'
                 ' VALUES (?, ?, ?, ?, ?)',
-                (provider_id, receipt, product_id, quantity, amount, expense_date)
+                (provider_id, bill_number, product_id, amount, expense_date)
             )
             db.commit()
             return redirect(url_for('expense.index'))
@@ -75,54 +75,13 @@ def create():
             ' ORDER BY name'
     ).fetchall()
 
-    products = db.execute(
+    concepts = db.execute(
             'SELECT id, description'
             ' FROM product'
             ' ORDER BY description'
     ).fetchall()
 
-    return render_template('expense/create.html', providers=providers, products=products)
-
-"""
-@bp.route('/_owner_receipts', methods=['GET','POST'])
-def populate_receipts():
-    person_id = request.args.get('person_id', 0);
-
-    current_app.logger.debug('person_id: ' + person_id)
-
-    receipts = get_db().execute(
-        'SELECT r.id, number || " - " || c.description as concept'
-        '  FROM receipt r'
-        '       JOIN concept c on r.concept_id = c.id'
-        ' WHERE r.person_id = ?',
-        (person_id,)
-    ).fetchall()
-
-    current_app.logger.debug('found receipts: ' + str(len(receipts)))
-
-    #dict_receipts = [dict(rec) for rec in receipts]
-
-    #current_app.logger.debug(str(dict_receipts[0]))
-
-    return jsonify(result=[dict(rec) for rec in receipts])
-
-def get_expense(id, check_user=True):
-    expense = get_db().execute(
-            'SELECT r.id, number, c.description as concept_desc, p.first_name as owner,'
-                  ' pr.description, amount, issue_date, r.status'
-            '  FROM expense r'
-                  ' JOIN person p on r.person_id = p.id'
-                  ' JOIN owner o on r.person_id = o.person_id'
-                  ' JOIN property pr on o.property_id = pr.id'
-                  ' JOIN concept c on r.concept_id = c.id'
-            ' WHERE r.id = ?',
-            (id,)
-    ).fetchone()
-
-    if expense is None:
-        abort(404, "Receipt id {0} does not exist.".format(id))
-
-    return expense
+    return render_template('expense/create.html', providers=providers, concepts=concepts)
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 ##@login_required
@@ -150,21 +109,37 @@ def update(id):
                     return redirect(url_for('expense.index'))
 
     db = get_db()
-    owners = db.execute(
-            'SELECT *'
-            ' FROM person'
-            ' ORDER BY first_name'
+    providers = db.execute(
+            'SELECT id, name'
+            ' FROM provider'
+            ' ORDER BY name'
     ).fetchall()
 
-    concepts = db.execute(
+    products = db.execute(
             'SELECT id, description'
-            ' FROM concept'
-            #' WHERE status = 1'
-            ' ORDER BY id'
+            ' FROM product'
+            ' ORDER BY description'
     ).fetchall()
 
     return render_template('expense/update.html', expense=expense, owners=owners, concepts=concepts)
 
+def get_expense(id, check_user=True):
+    expense = get_db().execute(
+            'SELECT e.id, e.bill_number, p.first_name as provider,'
+                  ' pr.description as product_desc, e.amount, e.expense_date, e.status'
+            '  FROM expense e'
+                  ' JOIN person p on e.person_id = p.id'
+                  ' JOIN product pr on e.product_id = pr.id'
+            ' WHERE r.id = ?',
+            (id,)
+    ).fetchone()
+
+    if expense is None:
+        abort(404, "Receipt id {0} does not exist.".format(id))
+
+    return expense
+
+"""
 @bp.route('/<int:id>/delete', methods=('POST',))
 ##@login_required
 def delete(id):
@@ -174,17 +149,4 @@ def delete(id):
     db.commit()
 
     return redirect(url_for('expense.index'))
-
-@bp.route('/<int:id>/expense_pdf')
-def expense_pdf(id):
-    expense = get_expense(id)
-    rec_form = {'str_amount':'Doscientos Setentaicinco',
-                'expense_month':'Mayo',
-                'city':'Santiago de Surco',
-                'day':'15',
-                'expense_month':'Mayo',
-                'year':'2018'}
-    html = render_template('expense/expense.html',expense=expense, rec_form=rec_form)
-
-    return render_pdf(HTML(string=html))
 """
