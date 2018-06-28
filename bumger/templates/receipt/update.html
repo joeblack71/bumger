@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-	<h1>{% block title %}Edit "{{ receipt['number'] }}"{% endblock %}</h1>
+	<h1>{% block title %}Update Receipt{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -34,7 +34,7 @@
         </select>
 
         <label for="amount">Amount</label>
-        <input name="amount" id="amount" value="{{ request.form['amount'] or receipt['amount'] }}" required>
+        <input name="amount" id="amount" value="{{ request.form['amount'] or receipt['amount']|float(default=0.0) }}" required>
 
         <label for="issue_date">Issue date</label>
         <input name="issue_date" id="issue_date" value="{{ request.form['issue_date'] or receipt['issue_date'] }}" required>

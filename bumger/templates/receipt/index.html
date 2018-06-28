@@ -11,25 +11,49 @@
 {% endblock %}
 
 {% block content %}
-    <br /><br />
-    {% for receipt in receipts %}
-      <div class="{{ loop.cycle('odd', 'even') }}">
-        {{ loop.index }}
-        - <a class="action" href="{{ url_for('receipt.update', id=receipt['id']) }}">{{ receipt['number'] }}</a>
-        - {{ receipt['issue_date'].strftime('%d/%m/%Y') }}
-        - {{ receipt['concept'] }}
-        - {{ receipt['property'] }}
-        - {{ receipt['receiver'] }}
-        - {{ receipt['amount'] }}
-        {% if receipt['status'] == 'C' %}
-          - Cancelled
-        {% else %}
-          - Pendant
-          <a class="action" href="{{ url_for('payment.create', receipt_id=receipt.id, receiver_id=receipt.receiver_id) }}">Pay</a>
-        {% endif %}
-      </div>
-      {% if not loop.last %}
-          <hr>
-      {% endif %}
+    <br />
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Number</th>
+          <th>Issue</th>
+          <th>Detail</th>
+          <th>Property</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+    {% for group in receipts|groupby('receiver') %}
+      <tbody>
+        <tr>
+          <td><strong>{{ group.grouper }}</strong></td>
+        </tr>
+        {% for receipt in group.list|sort(attribute='issue_date', reverse=True) %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td><a class="action" href="{{ url_for('receipt.update', id=receipt['id']) }}">{{ receipt['number'] }}</a></td>
+          <td>{{ receipt['issue_date'].strftime('%d/%m/%Y') }}</td>
+          <td>{{ receipt['concept'] }}</td>
+          <td>{{ receipt['property'] }}</td>
+          <td class="number">{{ receipt['amount']|float(default=0.0) }}</td>
+          {% if receipt['status'] == 'C' %}
+            <td>Cancelled</td>
+          {% else %}
+            <td>Pendant</td>
+            <td><a class="action" href="{{ url_for('payment.create', receipt_id=receipt.id, receiver_id=receipt.receiver_id) }}">Pay</a></td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
     {% endfor %}
+      <tfoot>
+        <tr>
+          <th colspan="4"></th>
+          <th>Total:</th>
+          <th class="number">{{ receipts|sum(attribute='amount')|float }}</th>
+        </tr>
+      </tfoot>
+    </table>
 {% endblock %}

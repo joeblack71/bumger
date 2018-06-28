@@ -16,7 +16,7 @@ def index():
     receipts = db.execute(
 		'SELECT r.id, po.occupant_id as receiver_id,'
         '       po.occupant_name as receiver, po.property_alias as property,'
-        '       r.number, c.description concept, r.amount, r.issue_date, r.status'
+        '       r.number, c.description as concept, r.amount, r.issue_date, r.status'
         ' FROM receipt r'
         '       LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
         '       LEFT JOIN concept c ON r.concept_id = c.id'

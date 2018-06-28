@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-	<h1>{% block title %}Receipt: "{{ payment.receipt_number }}"{% endblock %}</h1>
+	<h1>{% block title %}Update{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
         <input name="issue_date" id="title" value="{{ payment['receipt_date'] }}" disabled>
 
         <label for="rec_amount">Receipt Amount</label>
-        <input name="rec_amount" id="rec_amount" value="{{ payment['receipt_amount'] }}" disabled>
+        <input name="rec_amount" id="rec_amount" value="{{ payment['receipt_amount']|float(default=0.0) }}" disabled>
 
         <label for="concept">Concept</label>
         <select name="concept" id="concept" value="{{ request.form['concept'] or payment['concept_id'] }}" disabled>
@@ -43,7 +43,7 @@
         <input name="payment_date" id="payment_date" value="{{ request.form['payment_date'] or payment['payment_date'] }}" required>
 
         <label for="amount">Payment Amount</label>
-        <input name="amount" id="amount" value="{{ request.form['amount'] or payment['amount'] }}" required>
+        <input name="amount" id="amount" value="{{ request.form['amount'] or payment['amount']|float(default=0.0) }}" required>
 
         <label for="status">Status</label>
         <select name="status" id="title" value="{{ request.form['status'] or payment['status'] }}" required>

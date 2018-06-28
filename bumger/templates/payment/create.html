@@ -15,12 +15,13 @@
 <script>
   $(function() {
     $('#receiver').on('change', function() {
-      $.getJSON($SCRIPT_ROOT + '/payment/_receiver_receipts', {
+      $.getJSON($SCRIPT_ROOT + "{{ url_for('payment.populate_receipts') }}", {
         person_id: $('select[name="receiver"]').val()
       }, function(data) {
             /* refresh receipts drop down */
             var $el = $("#receipt");
             $el.empty();
+            $el.append($("<option>Select receipt</option>").attr("value", 0));
             $.each(data.result, function(i, obj) {
               $el.append($("<option></option>")
               .attr("value", obj.id).text(obj.concept));
@@ -44,31 +45,31 @@
 
 {% block content %}
     <form method="post">
-        <label for="receipt">Receipts</label>
-        <select name="receipt" id="receipt" required>
-          <option value="0">Select receipt</option>
-          {% for receipt in receipts %}
-          <option value="{{ receipt.id }}">{{ receipt.number }} - {{ receipt.description }}</option>
-          {% endfor %}
-        </select>
+      <label for="receiver">Receiver</label>
+      <select name="receiver" id="receiver" required>
+        <option value="0">Select receiver</option>
+        {% for receiver in receivers %}
+        <option value="{{ receiver.receiver_id }}">{{ receiver.property_alias }} - {{ receiver.receiver_name}}</option>
+        {% endfor %}
+      </select>
 
-        <label for="receiver">Receiver</label>
-        <select name="receiver" id="receiver" required>
-          <option value="0">Select receiver</option>
-          {% for receiver in receivers %}
-          <option value="{{ receiver.receiver_id }}">{{ receiver.property_alias }} - {{ receiver.receiver_name}}</option>
-          {% endfor %}
-        </select>
+      <label for="receipt">Receipts</label>
+      <select name="receipt" id="receipt" required>
+        <option value="0">Select receipt</option>
+        {% for receipt in receipts %}
+        <option value="{{ receipt.id }}">{{ receipt.number }} - {{ receipt.detail }} : {{ receipt.receiver}} - {{ receipt.property }}</option>
+        {% endfor %}
+      </select>
 
-        <label for="amount">Amount</label>
-        <input name="amount" id="amount" value="275.0" required>
+      <label for="amount">Amount</label>
+      <input name="amount" id="amount" value="275.0" required>
 
-        <label for="payment_date">Payment date</label> <!-- TODO set default value to today-->
-        <input name="payment_date" id="payment_date" value="{{ request.form['payment_date'] }}" required>
+      <label for="payment_date">Payment date</label> <!-- TODO set default value to today-->
+      <input name="payment_date" id="payment_date" value="{{ request.form['payment_date'] }}" required>
 
-        <label for="payment_note">Comments</label>
-        <textarea name="payment_note" id="payment_note"></textarea>
+      <label for="payment_note">Comments</label>
+      <textarea name="payment_note" id="payment_note"></textarea>
 
-        <input type="submit" value="Save">
+      <input type="submit" value="Save">
     </form>
 {% endblock %}

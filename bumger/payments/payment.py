@@ -19,14 +19,15 @@ bp = Blueprint('payment', __name__, url_prefix='/payments')
 def index():
     db = get_db()
     payments = db.execute(
-            'SELECT p.id, po.property_alias, po.occupant_name as receiver_name,'
-            '       c.description as concept,'
-            '       r.number, r.amount, r.issue_date receipt_date, p.payment_date, p.amount, r.status'
+            'SELECT p.id, p.payment_date as date, p.amount,'
+            '       r.id as receipt_id, r.number as receipt_number,'
+            '       r.amount as receipt_amount, r.issue_date as receipt_date,'
+            '       po.property_alias as property, po.occupant_name as property_occupant,'
+            '       c.description as concept'
             '  FROM payment p'
             '       LEFT JOIN receipt r ON p.receipt_id = r.id'
             '       LEFT JOIN concept c ON r.concept_id = c.id'
             '       LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
-            ' WHERE r.status = "C"'
             ' ORDER BY p.payment_date DESC'
     ).fetchall()
 
@@ -85,19 +86,27 @@ def create():
 
     receipt_id = request.args.get('receipt_id')
 
+    current_app.logger.debug('receipt_id: ' + str(receipt_id))
+
     if not receipt_id:
         receipts = db.execute(
-                'SELECT r.id, number, c.description, amount, r.status'
+                'SELECT r.id, r.number, c.description as detail, r.amount,'
+                '       po.property_alias as property, po.occupant_name as receiver'
                 ' FROM receipt r'
-                '      JOIN concept c ON r.concept_id = c.id'
+                '      LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
+                '      LEFT JOIN concept c ON r.concept_id = c.id'
+                ' WHERE r.status = "P"'
                 ' ORDER BY number'
         ).fetchall()
     else:
         receipts = db.execute(
-                'SELECT r.id, number, c.description, amount, r.status'
+                'SELECT r.id, r.number, c.description as detail, r.amount,'
+                '       po.property_alias as property, po.occupant_name as receiver'
                 ' FROM receipt r'
-                '      JOIN concept c ON r.concept_id = c.id'
-                ' WHERE r.id = ?',
+                '      LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
+                '      LEFT JOIN concept c ON r.concept_id = c.id'
+                ' WHERE r.id = ?'
+                '   AND r.status = "P"',
                 (receipt_id,)
         ).fetchall()
 
@@ -105,10 +114,12 @@ def create():
 
     if not receiver_id:
         receivers = db.execute(
-                'SELECT occupant_id as receiver_id, occupant_name as receiver_name,'
-                ' property_id, property_description, property_alias'
-                ' FROM property_occupant'
-                ' ORDER BY occupant_name'
+                'SELECT po.occupant_id as receiver_id, po.occupant_name as receiver_name,'
+                ' po.property_id, po.property_description, po.property_alias'
+                ' FROM property_occupant po'
+                '      JOIN receipt r on r.person_id = po.occupant_id'
+                ' WHERE r.status = "P"'
+                ' ORDER BY po.occupant_name'
         ).fetchall()
 
     else:
@@ -122,9 +133,9 @@ def create():
                 (receiver_id,)
         ).fetchall()
 
-    current_app.logger.debug('receivers: ' + str(len(receivers)))
+    ##current_app.logger.debug('receivers: ' + str(len(receivers)))
 
-    return render_template('payment/create.html', receipts=receipts, receivers=receivers)
+    return render_template('payment/create.html', receivers=receivers, receipts=receipts)
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 ##@login_required
@@ -202,7 +213,8 @@ def populate_receipts():
         'SELECT r.id, number || " - " || c.description as concept'
         '  FROM receipt r'
         '       JOIN concept c ON r.concept_id = c.id'
-        ' WHERE r.person_id = ?',
+        ' WHERE r.person_id = ?'
+        '   AND r.status = "P"',
         (person_id,)
     ).fetchall()
 
@@ -242,16 +254,16 @@ def prepare_receipt(id):
 
 def get_pdf_receipt(id):
     receipt = get_db().execute(
-            'SELECT r.id, number, c.description as concept,'
-                  ' po.occupant_name as owner,'
-                  ' po.property_description as property, pm.amount, payment_date,'
-                  ' pn.text as note, r.status'
+            'SELECT r.number, c.description as concept,'
+                  ' o.occupant_name as receiver,'
+                  ' o.property_description as property,'
+                  ' pm.amount, pm.payment_date,'
+                  ' n.text as note'
             '  FROM receipt r'
-                  ' LEFT JOIN person p ON r.person_id = p.id'
-                  ' LEFT JOIN property_occupant po ON r.person_id = po.occupant_id'
+                  ' LEFT JOIN property_occupant o ON r.person_id = o.occupant_id'
                   ' LEFT JOIN concept c ON r.concept_id = c.id'
                   ' LEFT JOIN payment pm ON r.id = pm.receipt_id'
-                  ' LEFT JOIN payment_note pn ON pm.id = pn.payment_id'
+                  ' LEFT JOIN payment_note n ON pm.id = n.payment_id'
             ' WHERE r.id = ?',
             (id,)
     ).fetchone()

@@ -4,8 +4,9 @@
 <nav>
     <h1>Building Manager</h1>
     {% set navigation_bar = [
-        ('/', 'index', 'Index'),
+        ('/', 'index', 'Receipts'),
         ('/payments/', 'payments', 'Payments'),
+        ('/expenses/', 'expenses', 'Expenses'),
         ('/about/', 'about', 'About')
     ] -%}
     {% set active_page = active_page|default('index') -%}

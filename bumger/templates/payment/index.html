@@ -11,25 +11,45 @@
 {% endblock %}
 
 {% block content %}
-    <br /><br />
+    <br />
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Number</th>
+          <th>Issue</th>
+          <th>Detail</th>
+          <th>Property</th>
+          <th>Receiver</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th></th>
+        </tr>
+      </thead>
     {% for payment in payments %}
-      <div class="{{ loop.cycle('odd', 'even') }}">
-        {{ loop.index }}
-        - <a class="action" href="{{ url_for('payment.update', id=payment.id) }}">{{ payment.number }}</a>
-        - {{ payment.receipt_date.strftime('%d/%m/%Y') }}
-        - {{ payment.concept }}
-        - {{ payment.receiver_name }}
-        - {{ payment.property_alias }}
-        - {{ payment.amount }}
-        - {{ payment.payment_date.strftime('%d/%m/%Y') }}
-
-        <a class="action" href="{{ url_for('payment.prepare_receipt', id=payment.id) }}">Print</a>
-
-      </div>
-
-      {% if not loop.last %}
-          <hr>
-      {% endif %}
-
+      <tbody>
+        <tr class="{{ loop.cycle('odd', 'even') }}">
+          <td>{{ loop.index }}</td>
+          <td><a class="action" href="{{ url_for('payment.update', id=payment.id) }}" title="Receipt number">
+            {{ payment.receipt_number }}</a></td>
+          <td>{{ payment.receipt_date.strftime('%d/%m/%Y') }}</td>
+          <td>{{ payment.concept }}</td>
+          <td>{{ payment.property }}</td>
+          <td>{{ payment.property_occupant }}</td>
+          <td>{{ payment.amount|float(default=0.0) }}</td>
+          <td>{{ payment.date.strftime('%d/%m/%Y') }}</td>
+          <td>
+          <a class="action" href="{{ url_for('payment.prepare_receipt', id=payment.receipt_id) }}" title="Print receipt">Print</a>
+          </td>
+        </tr>
+      </tbody>
     {% endfor %}
+      <tfoot>
+        <tr>
+          <th colspan="5">
+          <th>Total</th>
+          <th>{{ payments|sum(attribute='amount')|float }}</th>
+        </tr>
+      </tfoot>
+    </table>
 {% endblock %}

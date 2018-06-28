@@ -1,5 +1,5 @@
 --
--- File generated with SQLiteStudio v3.1.1 on Thu Jun 14 16:47:14 2018
+-- File generated with SQLiteStudio v3.1.1 on Sun Jun 24 18:28:40 2018
 --
 -- Text encoding used: UTF-8
 --
@@ -8,7 +8,6 @@ BEGIN TRANSACTION;
 
 -- Table: concept
 DROP TABLE IF EXISTS concept;
-
 CREATE TABLE concept (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     description TEXT    NOT NULL
@@ -16,36 +15,20 @@ CREATE TABLE concept (
     status      BOOLEAN DEFAULT (1) 
 );
 
-
 -- Table: expense
 DROP TABLE IF EXISTS expense;
-
-CREATE TABLE expense (
-    id             INTEGER        PRIMARY KEY AUTOINCREMENT,
-    provider_id    INTEGER        NOT NULL
-                                  REFERENCES provider (id),
-    receipt_number TEXT,
-    product_id     INTEGER        NOT NULL
-                                  REFERENCES product (id),
-    quantity       INTEGER        NOT NULL,
-    amount         DECIMAL (5, 2) NOT NULL,
-    expense_date   DATE           NOT NULL
-);
-
+CREATE TABLE expense (id INTEGER PRIMARY KEY AUTOINCREMENT, provider_id INTEGER NOT NULL REFERENCES provider (id), bill_number TEXT, product_id INTEGER NOT NULL REFERENCES product (id), quantity INTEGER NOT NULL, amount DECIMAL (5, 2) NOT NULL, expense_date DATE NOT NULL, status CHAR DEFAULT P);
 
 -- Table: owner
 DROP TABLE IF EXISTS owner;
-
 CREATE TABLE owner (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     person_id   INTEGER REFERENCES person (id),
     property_id INTEGER REFERENCES property (id) 
 );
 
-
 -- Table: payment
 DROP TABLE IF EXISTS payment;
-
 CREATE TABLE payment (
     id           INTEGER        PRIMARY KEY AUTOINCREMENT,
     receipt_id   INTEGER        REFERENCES receipt (id) 
@@ -54,20 +37,16 @@ CREATE TABLE payment (
     payment_date DATE           NOT NULL
 );
 
-
 -- Table: payment_note
 DROP TABLE IF EXISTS payment_note;
-
 CREATE TABLE payment_note (
     id         INTEGER       PRIMARY KEY AUTOINCREMENT,
     text       VARCHAR (255) NOT NULL,
     payment_id INTEGER       REFERENCES payment (id) ON DELETE CASCADE
 );
 
-
 -- Table: person
 DROP TABLE IF EXISTS person;
-
 CREATE TABLE person (
     id          INTEGER PRIMARY KEY AUTOINCREMENT
                         NOT NULL,
@@ -76,10 +55,8 @@ CREATE TABLE person (
     id_document TEXT    UNIQUE
 );
 
-
 -- Table: product
 DROP TABLE IF EXISTS product;
-
 CREATE TABLE product (
     id          INTEGER PRIMARY KEY,
     type        INTEGER,
@@ -88,10 +65,8 @@ CREATE TABLE product (
     status      BOOLEAN DEFAULT (1) 
 );
 
-
 -- Table: property
 DROP TABLE IF EXISTS property;
-
 CREATE TABLE property (
     id                 INTEGER PRIMARY KEY AUTOINCREMENT
                                NOT NULL,
@@ -100,10 +75,8 @@ CREATE TABLE property (
     alias              TEXT
 );
 
-
 -- Table: provider
 DROP TABLE IF EXISTS provider;
-
 CREATE TABLE provider (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     type          INTEGER NOT NULL,
@@ -115,10 +88,8 @@ CREATE TABLE provider (
     status        BOOLEAN DEFAULT (1) 
 );
 
-
 -- Table: receipt
 DROP TABLE IF EXISTS receipt;
-
 CREATE TABLE receipt (
     id         INTEGER        PRIMARY KEY AUTOINCREMENT,
     number     TEXT           UNIQUE
@@ -132,10 +103,8 @@ CREATE TABLE receipt (
     status     CHAR           DEFAULT P
 );
 
-
 -- Table: tenant
 DROP TABLE IF EXISTS tenant;
-
 CREATE TABLE tenant (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     person_id   INTEGER REFERENCES person (id),
@@ -143,17 +112,14 @@ CREATE TABLE tenant (
     status      CHAR    DEFAULT ('A') 
 );
 
-
 -- Table: user
 DROP TABLE IF EXISTS user;
-
 CREATE TABLE user (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT    UNIQUE
                      NOT NULL,
     password TEXT    NOT NULL
 );
-
 
 -- View: property_occupant
 DROP VIEW IF EXISTS property_occupant;
@@ -179,7 +145,6 @@ CREATE VIEW property_occupant AS
            person p ON t.person_id = p.id
            LEFT JOIN
            property pp ON t.property_id = pp.id;
-
 
 COMMIT TRANSACTION;
 PRAGMA foreign_keys = on;

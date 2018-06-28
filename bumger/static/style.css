@@ -26,6 +26,38 @@ input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
 
 .even { background-color: lightgray}
+div.row {
+  font-size: 1.2em;
+}
+
+.number {
+  text-align: right;
+}
+
+table {
+	display: block;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+thead {
+  background-color: #DDD;
+}
+
+tbody {
+}
+
+tr {
+  border-bottom: solid lightgray 1px;
+}
+
+th, td {
+  border: none;
+  height: 17px;
+  /*overflow: hidden;*/
+  padding: 3px;
+  width: 6%;
+}
 
 .rTable {
   	display: block;
@@ -44,7 +76,7 @@ input[type=submit] { align-self: start; min-width: 10em; }
   	height: 17px;
   	overflow: hidden;
   	padding: 3px 1.8%;
-  	width: 28%;
+  	width: 6%;
 }
 .rTable:after {
   	 visibility: hidden;

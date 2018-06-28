@@ -25,4 +25,7 @@ def create_app(test_config=None):
     from bumger.payments import payment
     app.register_blueprint(payment.bp)
 
+    from bumger.expenses import expense
+    app.register_blueprint(expense.bp)
+
     return app
